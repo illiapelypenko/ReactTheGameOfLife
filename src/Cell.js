@@ -1,18 +1,15 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 const CellWrapper = styled.div`
-  height: 18px;
-  width: 18px;
-  background-color: ${props => props.isLive ? "green" : "grey"};
-  //border: 1px solid black;
+  height: 20px;
+  width: 20px;
+  background-color: ${props => props.isLive ? "#295F2D" : "#1D1B1D"};
 `;
 
-export class Cell extends Component {
+class Cell extends Component {
   render() {
     return (
-      <CellWrapper isLive={this.props.cell.isLive}>
-        {/* {this.props.cell.liveNeighbors} */}
-      </CellWrapper>
+      <CellWrapper isLive={this.props.cell.isLive}></CellWrapper>
     )
   }
 }

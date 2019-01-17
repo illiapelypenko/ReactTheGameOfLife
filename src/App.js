@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
 import Field from './Field';
+import Button from './Button';
+import Title from './Title';
+
 const lodash = require('lodash');
 
 const AppWrapper = styled.div`
@@ -11,29 +14,28 @@ const AppWrapper = styled.div`
   min-height: 100vh;
   padding: 10px;
   background-color: rgb(32, 33, 36);
-  //50 54 47
-`;
-const Next = styled.div`
-  font-size: 28px;
-  background-color: yellow;
-  cursor: pointer;
 `;
 
 class App extends Component {
   constructor() {
     super();
     this.state = {
-      cells: []
+      cells: [],
+      isWorking: false
     }
     this.handleOnButtonClick = this.handleOnButtonClick.bind(this);
     this.updateField = this.updateField.bind(this);
-    this.getCells = this.getCells.bind(this);
+    this.getInitialCells = this.getInitialCells.bind(this);
     this.updateLiveNeighbors = this.updateLiveNeighbors.bind(this);
+    this.handleOnResetButtonClick = this.handleOnResetButtonClick.bind(this);
   }
-  getCells() {
-    let cells = new Array(40);
+  componentDidMount() {
+    this.getInitialCells();
+  }
+  getInitialCells() {
+    let cells = new Array(30);
     for(let i = 0; i < cells.length; i++){
-      cells[i] = new Array(40);
+      cells[i] = new Array(30);
     }
     for(let i = 0; i < cells.length; i++){
       for(let j = 0; j < cells[i].length; j++){
@@ -47,12 +49,7 @@ class App extends Component {
     }
     this.updateLiveNeighbors(cells);
   }
-  componentDidMount() {
-    console.log("did");
-    this.getCells();//deepClone before setState
-  }
-  updateLiveNeighbors(cells){//global
-    console.log(cells);
+  updateLiveNeighbors(cells){
     for(let i = 0; i < cells.length; i++){
       for(let j = 0; j < cells[i].length; j++){
         cells[i][j].liveNeighbors = 0;
@@ -70,7 +67,7 @@ class App extends Component {
     this.setState({cells: lodash.cloneDeep(cells)});
   }
   updateField() {
-    let cells = lodash.cloneDeep(this.state.cells);//future / past
+    let cells = lodash.cloneDeep(this.state.cells);
     for(let i = 0; i < cells.length; i++){
       for(let j = 0; j < cells[i].length; j++){
         if(this.state.cells[i][j].isLive === true){
@@ -90,14 +87,20 @@ class App extends Component {
     this.updateLiveNeighbors(cells);
   }
   handleOnButtonClick() {
-    this.timer = setInterval(this.updateField, 100);
-    //this.updateField();
+    this.setState({isWorking: true}, () =>{
+      this.timer = setInterval(this.updateField, 500);
+    });
+  }
+  handleOnResetButtonClick() {
+    this.setState({isWorking: false}, () => {
+      clearInterval(this.timer);
+      this.getInitialCells();
+    });
   }
   componentWillUnmount() {
     clearInterval(this.timer);
   }
   render() {
-    console.log("re");
     let cells = [];
     for(let i = 0; i < this.state.cells.length; i++){
       for(let j = 0; j < this.state.cells[i].length; j++){
@@ -106,8 +109,10 @@ class App extends Component {
     }
     return (
       <AppWrapper>
+        <Title/>
         <Field cells={cells}/>
-        <Next onClick={this.handleOnButtonClick}>Next</Next>
+        <Button onClick={this.state.isWorking ? this.handleOnResetButtonClick : this.handleOnButtonClick}
+        isWorking={this.state.isWorking}></Button>
       </AppWrapper>
     );
   }
